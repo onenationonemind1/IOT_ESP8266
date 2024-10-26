@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sensor Data Graph</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin: 20px 0;
+        }
+        #sensorValue {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #333;
+        }
+        #lastUpdate {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sensor Reading Graph</h1>
+        <div id="sensorValue">Current Value: --</div>
+        <div id="lastUpdate">Last Update: --</div>
+        
+        <div class="chart-container">
+            <canvas id="sensorChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+        
+        function initChart() {
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Sensor Values',
+                        data: [],
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Sensor Value'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 750
+                    }
+                }
+            });
+        }
+
+        function updateChart(data) {
+            // Get last 20 readings for the graph
+            const lastReadings = data.slice(-20);
+            
+            const labels = lastReadings.map(reading => {
+                const date = new Date(reading.timestamp);
+                return date.toLocaleTimeString();
+            });
+            
+            const values = lastReadings.map(reading => reading.value);
+            
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = values;
+            chart.update();
+        }
+
+        function fetchData() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const latest = data[data.length - 1];
+                        
+                        // Update current value and timestamp
+                        document.getElementById('sensorValue').textContent = 
+                            `Current Value: ${latest.value}`;
+                        document.getElementById('lastUpdate').textContent = 
+                            `Last Updated: ${new Date(latest.timestamp).toLocaleString()}`;
+                        
+                        // Update chart
+                        updateChart(data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Initialize chart when page loads
+        initChart();
+
+        // Update every 5 seconds
+        setInterval(fetchData, 5000);
+        
+        // Initial fetch
+        fetchData();
+    </script>
+</body>
+</html>
