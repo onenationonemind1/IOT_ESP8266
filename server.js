@@ -21,7 +21,7 @@ app.post('/data', (req, res) => {
         sensorData.shift();
     }
     
-    res.send('Data received');
+    res.send('Data received!');
 });
 
 // Route to get sensor data

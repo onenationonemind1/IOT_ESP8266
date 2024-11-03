@@ -5,6 +5,7 @@
 const char* ssid = "TOMNTOMSGuest";
 const char* password = "t1234567890";
 
+
 // Server settings
 const char* serverIP = "172.30.1.50";  // Replace with your computer's IP
 const int serverPort = 3000;
