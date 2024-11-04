@@ -3,7 +3,8 @@
 
 const char* ssid = "YOUR_WIFI_NAME";
 const char* password = "YOUR_WIFI_PASSWORD";
-const char* serverAddress = "http://192.168.1.100:3000/data"; // Change to your server IP
+// const char* serverAddress = "http://192.168.1.100:3000/data"; // Change to your server IP
+const char* serverAddress = "http://3.38.169.55:3000/data"; // Change to your server IP
 
 const int analogPin = A0;  // ESP8266 analog pin
 
