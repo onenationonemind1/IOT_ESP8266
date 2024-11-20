@@ -74,16 +74,62 @@
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Analog Sensor Value',
-                        data: [],
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.1,
-                        fill: true
-                    }]
-                },
+                labels: [],
+datasets: [{
+    label: 'Analog Sensor Value',
+    data: [],
+    borderColor: 'rgb(75, 192, 192)',
+    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+    tension: 0.1,
+    fill: true,
+    segment: {
+        borderColor: context => {
+            const prev = context.p0.parsed?.y;
+            const current = context.p1.parsed?.y;
+            if (prev !== undefined && current !== undefined) {
+                const difference = Math.abs(current - prev);
+                return difference >= 20 ? 'red' : 'rgb(75, 192, 192)';
+            }
+            return 'rgb(75, 192, 192)';
+        },
+        borderWidth: context => {
+            const prev = context.p0.parsed?.y;
+            const current = context.p1.parsed?.y;
+            if (prev !== undefined && current !== undefined) {
+                const difference = Math.abs(current - prev);
+                return difference >= 20 ? 4 : 2;  // 차이가 큰 구간은 더 두꺼운 선으로 표시
+           }
+            return 2;
+        }
+    },
+    pointRadius: context => {
+        if (context.raw) {
+            const dataIndex = context.dataIndex;
+            const dataset = context.dataset.data;
+            if (dataIndex > 0) {
+                const prevValue = dataset[dataIndex - 1];
+                const currentValue = dataset[dataIndex];
+                const difference = Math.abs(currentValue - prevValue);
+                return difference >= 20 ? 6 : 3;  // 큰 변화가 있는 포인트는 더 크게 표시
+            }
+        }
+        return 3;
+    },
+    pointBackgroundColor: context => {
+        if (context.raw) {
+            const dataIndex = context.dataIndex;
+            const dataset = context.dataset.data;
+            if (dataIndex > 0) {
+                const prevValue = dataset[dataIndex - 1];
+                const currentValue = dataset[dataIndex];
+                const difference = Math.abs(currentValue - prevValue);
+                return difference >= 20 ? 'red' : 'rgb(75, 192, 192)';
+            }
+        }
+        return 'rgb(75, 192, 192)';
+    }
+}]
+		},
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
